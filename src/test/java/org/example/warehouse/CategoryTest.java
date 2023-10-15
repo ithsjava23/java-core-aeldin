@@ -1,6 +1,5 @@
-package org.example;
+package org.example.warehouse;
 
-import org.example.warehouse.Category;
 import org.junit.jupiter.api.*;
 
 import java.lang.reflect.Constructor;
