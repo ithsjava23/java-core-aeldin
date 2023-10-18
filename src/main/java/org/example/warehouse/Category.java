@@ -35,6 +35,7 @@ public class Category {
          return firstChar.toUpperCase() + name.substring(1);
      }
 
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
