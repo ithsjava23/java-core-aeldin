@@ -27,7 +27,6 @@ public class Warehouse {
     }
 
     public static Warehouse getInstance(String warehouseID) {
-       // String formattedName = makeFirstCharUppercase(name);
         Warehouse warehouse = cachedWarehouses.get(warehouseID);
         if ( warehouse == null) {
             warehouse = new Warehouse(warehouseID);
@@ -39,18 +38,17 @@ public class Warehouse {
     }
 
     public boolean isEmpty() {
-       return getWarehouse().products.isEmpty();
+       return products.isEmpty();
 
 
     }
 
     public List<Product> getProducts() {
-        return List.copyOf(getWarehouse().products);
+        return List.copyOf(products);
     }
 
     public Product addProduct(UUID uuid, String name, Category category, BigDecimal price) {
 
-        Warehouse warehouse = getWarehouse();
 
         if (uuid == null) {
             uuid = UUID.randomUUID();
@@ -69,14 +67,14 @@ public class Warehouse {
             throw new IllegalArgumentException("Category can't be null.");
         }
 
-        warehouse.products.add(product);
+        products.add(product);
 
         return product;
     }
 
     public void updateProductPrice(UUID productID, BigDecimal newPrice) {
         Optional<Product> productById = getProductById(productID);
-        Warehouse warehouse = getWarehouse();
+
 
         if (productById.isPresent()) {
             Product oldProduct = productById.get();
@@ -85,9 +83,9 @@ public class Warehouse {
 
             newProduct.setChanged(true);
 
-            List<Product> updatedProducts = new ArrayList<>(warehouse.products);
+            List<Product> updatedProducts = new ArrayList<>(products);
             updatedProducts.add(newProduct);
-            warehouse.products = updatedProducts;
+            products = updatedProducts;
 
         } else {
             throw new IllegalArgumentException("Product with that id doesn't exist.");
@@ -95,36 +93,34 @@ public class Warehouse {
     }
 
     public Optional<Product> getProductById(UUID uuid) {
-        return getWarehouse().products.stream()
+        return products.stream()
                 .filter(e -> e.getUuid().equals(uuid))
                 .findFirst();
     }
 
     public List<Product> getChangedProducts() {
-        return getWarehouse().products.stream()
+        return products.stream()
                 .filter(Product::isChanged)
                 .collect(Collectors.toList());
     }
 
     public Map<Category, List<Product>> getProductsGroupedByCategories() {
-        return getWarehouse().products.stream()
+        return products.stream()
                 .collect(Collectors.groupingBy(Product::category));
     }
 
     public List<Product> getProductsBy(Category category) {
-        return getWarehouse().products.stream()
+        return products.stream()
                 .filter(product -> product.category().equals(category))
                 .collect(Collectors.toList());
     }
     private void removeProduct(UUID productID) {
-        getWarehouse().products = getWarehouse().products.stream()
+        products = products.stream()
                 .filter(e -> !e.getUuid().equals(productID))
                 .toList();
 
     }
-    private Warehouse getWarehouse(){
-       return cachedWarehouses.get(name);
-    }
+
 }
 
 
