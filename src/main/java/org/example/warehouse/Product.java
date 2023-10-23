@@ -10,7 +10,6 @@ public class Product {
         private final String name;
         private final Category category;
         private final BigDecimal price;
-
         private boolean changed;
 
 
@@ -26,7 +25,9 @@ public class Product {
 
         }
 
-        public UUID getUuid() {
+
+
+    public UUID getUuid() {
             return uuid;
         }
 
@@ -67,5 +68,6 @@ public class Product {
     public int hashCode() {
         return Objects.hash(uuid);
     }
+
 
 }

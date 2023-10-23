@@ -32,28 +32,29 @@ public class Warehouse {
         if ( warehouse == null) {
             warehouse = new Warehouse(warehouseID);
             cachedWarehouses.put(warehouseID, warehouse);
+        } else {
+            warehouse.products = new ArrayList<>();
         }
         return warehouse;
     }
 
     public boolean isEmpty() {
-        return products.isEmpty();
+       return getWarehouse().products.isEmpty();
+
+
     }
 
     public List<Product> getProducts() {
-        return List.of();
+        return List.copyOf(getWarehouse().products);
     }
 
     public Product addProduct(UUID uuid, String name, Category category, BigDecimal price) {
 
-        if (products == null) {
-         products = new ArrayList<>();
-        }
+        Warehouse warehouse = getWarehouse();
 
         if (uuid == null) {
             uuid = UUID.randomUUID();
         }
-
 
         if (getProductById(uuid).isPresent()) {
             throw new IllegalArgumentException("Product with that id already exists, use updateProduct for updates.");
@@ -68,15 +69,14 @@ public class Warehouse {
             throw new IllegalArgumentException("Category can't be null.");
         }
 
-
-
-        products.add(product);
+        warehouse.products.add(product);
 
         return product;
     }
 
     public void updateProductPrice(UUID productID, BigDecimal newPrice) {
         Optional<Product> productById = getProductById(productID);
+        Warehouse warehouse = getWarehouse();
 
         if (productById.isPresent()) {
             Product oldProduct = productById.get();
@@ -85,10 +85,9 @@ public class Warehouse {
 
             newProduct.setChanged(true);
 
-            List<Product> updatedProducts = new ArrayList<>(products);
+            List<Product> updatedProducts = new ArrayList<>(warehouse.products);
             updatedProducts.add(newProduct);
-            products = updatedProducts;
-
+            warehouse.products = updatedProducts;
 
         } else {
             throw new IllegalArgumentException("Product with that id doesn't exist.");
@@ -96,27 +95,35 @@ public class Warehouse {
     }
 
     public Optional<Product> getProductById(UUID uuid) {
-        return products.stream().filter(e -> e.getUuid().equals(uuid)).findFirst();
+        return getWarehouse().products.stream()
+                .filter(e -> e.getUuid().equals(uuid))
+                .findFirst();
     }
 
     public List<Product> getChangedProducts() {
-        return products.stream()
+        return getWarehouse().products.stream()
                 .filter(Product::isChanged)
                 .collect(Collectors.toList());
     }
 
     public Map<Category, List<Product>> getProductsGroupedByCategories() {
-        return products.stream()
+        return getWarehouse().products.stream()
                 .collect(Collectors.groupingBy(Product::category));
     }
 
     public List<Product> getProductsBy(Category category) {
-        return products.stream()
+        return getWarehouse().products.stream()
                 .filter(product -> product.category().equals(category))
                 .collect(Collectors.toList());
     }
     private void removeProduct(UUID productID) {
-        products = products.stream().filter(e -> !e.getUuid().equals(productID)).toList();
+        getWarehouse().products = getWarehouse().products.stream()
+                .filter(e -> !e.getUuid().equals(productID))
+                .toList();
+
+    }
+    private Warehouse getWarehouse(){
+       return cachedWarehouses.get(name);
     }
 }
 
